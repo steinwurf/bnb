@@ -1,0 +1,8 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+bld.program(
+    features='cxx test',
+    source=['bnb_tests.cpp'] + bld.path.ant_glob('src/*.cpp'),
+    target='bnb_tests',
+    use=['bnb_includes', 'gtest'])
