@@ -8,10 +8,12 @@
 #include <cstdint>
 #include <system_error>
 #include <cassert>
-#include <memory>
 #include <endian/stream_reader.hpp>
+#include <endian/big_endian.hpp>
+#include <endian/little_endian.hpp>
 
 #include "bit_reader.hpp"
+#include "validator.hpp"
 
 namespace bnb
 {
@@ -21,25 +23,25 @@ class stream_reader
 public:
 
     stream_reader(const uint8_t* data, uint64_t size) :
-        m_stream(std::make_unique<endian::stream_reader<Endianness>>(data, size))
+        m_stream(data, size)
     { }
 
     /// Reads from the stream and moves the read position.
     ///
     /// @param value reference to the value to be read
     template<class ValueType>
-    void read(ValueType& value)
+    validator<ValueType> read(ValueType& value)
     {
         if (m_error)
-            return;
+            return { m_error, value };
 
-        if (sizeof(ValueType) > m_stream->remaining_size())
+        if (sizeof(ValueType) > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
-            return;
+            return { m_error, value };
         }
-        assert(m_stream != nullptr);
-        m_stream->read(value);
+        m_stream.read(value);
+        return { m_error, value };
     }
 
     /// Reads raw bytes from the stream to fill a buffer represented by
@@ -55,31 +57,36 @@ public:
         if (m_error)
             return;
 
-        assert(m_stream != nullptr);
-        if (size > m_stream->remaining_size())
+        if (size > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
             return;
         }
 
-        m_stream->read(data, size);
+        m_stream.read(data, size);
+        return;
     }
 
-    template<class ValueType, uint32_t... Sizes>
-    bit_reader<ValueType, Sizes...> read_bits()
+    template<class ValueType, class BitNumbering, uint32_t... Sizes>
+    bit_reader<ValueType, BitNumbering, Sizes...> read_bits()
     {
         ValueType value = 0;
-        if (m_error)
-            return bit_reader<ValueType, Sizes...>(m_error);
 
-        if (sizeof(ValueType) > m_stream->remaining_size())
+        if (m_error)
+        {
+            return bit_reader<ValueType, BitNumbering, Sizes...>(
+                value, m_error);
+        }
+
+        if (sizeof(ValueType) > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
-            return bit_reader<ValueType, Sizes...>(m_error);
+            return bit_reader<ValueType, BitNumbering, Sizes...>(
+                value, m_error);
         }
-        assert(m_stream != nullptr);
-        m_stream->read(value);
-        return bit_reader<ValueType, Sizes...>(value, m_error);
+
+        m_stream.read(value);
+        return bit_reader<ValueType, BitNumbering, Sizes...>(value, m_error);
     }
 
     /// Changes the current read/write position in the stream. The
@@ -92,14 +99,13 @@ public:
         if (m_error)
             return;
 
-        assert(m_stream != nullptr);
-        if (new_position > m_stream->size())
+        if (new_position > m_stream.size())
         {
             m_error = std::make_error_code(std::errc::invalid_seek);
             return;
         }
 
-        m_stream->seek(new_position);
+        m_stream.seek(new_position);
     }
 
     /// Skips over a given number of bytes in the stream
@@ -108,16 +114,16 @@ public:
     stream_reader<Endianness> skip(uint64_t bytes_to_skip)
     {
         if (m_error)
-            return stream_reader<Endianness>(m_error);
+            return *this;
 
-        assert(m_stream != nullptr);
-        if ((bytes_to_skip + m_stream->position()) > m_stream->size())
+        if (bytes_to_skip > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::invalid_seek);
-            return stream_reader<Endianness>(m_error);
+            return *this;
         }
-        auto remaining_data = m_stream->remaining_data();
-        m_stream->skip(bytes_to_skip);
+
+        auto remaining_data = m_stream.remaining_data();
+        m_stream.skip(bytes_to_skip);
         return stream_reader<Endianness>(remaining_data, bytes_to_skip);
     }
 
@@ -127,8 +133,7 @@ public:
     const uint8_t* remaining_data() const
     {
         assert(!m_error);
-        assert(m_stream != nullptr);
-        return m_stream->remaining_data();
+        return m_stream.remaining_data();
     }
 
 
@@ -138,8 +143,7 @@ public:
     uint64_t position() const
     {
         assert(!m_error);
-        assert(m_stream != nullptr);
-        return m_stream->position();
+        return m_stream.position();
     }
 
     /// The remaining number of bytes in the stream
@@ -148,8 +152,7 @@ public:
     uint64_t remaining_size() const
     {
         assert(!m_error);
-        assert(m_stream != nullptr);
-        return m_stream->remaining_size();
+        return m_stream.remaining_size();
     }
 
     /// A pointer to the stream's data.
@@ -157,7 +160,8 @@ public:
     /// @return pointer to the stream's data.
     const uint8_t* data() const
     {
-        return m_stream == nullptr ? nullptr : m_stream->data();
+        assert(!m_error);
+        return m_stream.data();
     }
 
     /// Gets the size of the underlying buffer in bytes.
@@ -165,28 +169,18 @@ public:
     /// @return the size of the buffer
     uint64_t size() const
     {
-        return m_stream == nullptr ? 0 : m_stream->size();
+        assert(!m_error);
+        return m_stream.size();
     }
 
-    std::error_code error()
+    std::error_code error() const
     {
         return m_error;
     }
 
 private:
 
-    /// Constructs an stream reader with an error. This is only allowed for
-    /// internal use.
-    stream_reader(const std::error_code& error) :
-       m_stream(nullptr),
-       m_error(error)
-    {
-       assert(m_error);
-    }
-
-private:
-
-    std::unique_ptr<endian::stream_reader<Endianness>> m_stream;
+    endian::stream_reader<Endianness> m_stream;
     std::error_code m_error;
 };
 }

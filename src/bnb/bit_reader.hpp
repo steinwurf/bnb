@@ -7,41 +7,40 @@
 
 #include <cstdint>
 #include <system_error>
-#include <cassert>
-#include <memory>
 #include <bitter/reader.hpp>
+#include <bitter/msb0.hpp>
+#include <bitter/lsb0.hpp>
+
+#include "validator_wrapper.hpp"
 
 namespace bnb
 {
-
-template<class DataType, uint32_t... Sizes>
+template<class DataType, class BitNumbering, uint32_t... Sizes>
 class bit_reader
 {
 public:
 
-    bit_reader(DataType value, std::error_code& error) :
-        m_reader(std::make_unique<bitter::reader<DataType, Sizes...>>(value)),
-        m_error(error)
-    { }
+    using reader_type = bitter::reader<DataType, BitNumbering, Sizes...>;
 
-    bit_reader(std::error_code& error) :
-        m_reader(nullptr),
+public:
+
+    bit_reader(DataType value, std::error_code& error) :
+        m_reader(value),
         m_error(error)
     { }
 
     template<uint32_t Index, class ValueType>
-    bit_reader<DataType, Sizes...>& read(ValueType& value)
+    validator_wrapper<bit_reader, ValueType> read(ValueType& value)
     {
         if (m_error)
-            return *this;
-        value = m_reader->template field<Index>().template read_as<ValueType>();
-        return *this;
+            return { *this, m_error, value };
+        value = m_reader.template field<Index>().template read_as<ValueType>();
+        return { *this, m_error, value };
     }
-
 
 private:
 
-    std::unique_ptr<bitter::reader<DataType, Sizes...>> m_reader;
+    reader_type m_reader;
     std::error_code& m_error;
 };
 }
