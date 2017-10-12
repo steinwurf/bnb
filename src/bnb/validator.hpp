@@ -13,7 +13,7 @@
 
 namespace bnb
 {
-namespace
+namespace detail
 {
 /// Empty dummy class for providing a "pure" validator which doesn't take the
 /// Super template.
@@ -22,11 +22,11 @@ class empty
 }
 
 template<class ValueType>
-class validator : public validator_wrapper<empty, ValueType>
+class validator : public validator_wrapper<detail::empty, ValueType>
 {
 public:
     validator(std::error_code& error, ValueType value) :
-        validator_wrapper<empty, ValueType>(*this, error, value)
+        validator_wrapper<detail::empty, ValueType>(*this, error, value)
     { }
 };
 }
