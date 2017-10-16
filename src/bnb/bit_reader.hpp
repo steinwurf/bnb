@@ -31,6 +31,16 @@ public:
     { }
 
     template<uint32_t Index, class ValueType>
+    validator_wrapper<bit_reader, ValueType> read()
+    {
+        ValueType value = 0;
+        if (m_error)
+            return { *this, m_error, value };
+        value = m_reader.template field<Index>().template read_as<ValueType>();
+        return { *this, m_error, value };
+    }
+
+    template<uint32_t Index, class ValueType>
     validator_wrapper<bit_reader, ValueType> read(ValueType& value)
     {
         if (m_error)
