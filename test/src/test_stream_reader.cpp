@@ -38,16 +38,16 @@ TEST(test_stream_reader, read_bytes)
     uint8_t byte8 = 0;
     uint8_t byte9 = 0;
 
-    reader.read(byte0);
-    reader.read(byte1);
-    reader.read(byte2);
-    reader.read(byte3);
-    reader.read(byte4);
-    reader.read(byte5);
-    reader.read(byte6);
-    reader.read(byte7);
-    reader.read(byte8);
-    reader.read(byte9);
+    reader.read<endian::u8>(byte0);
+    reader.read<endian::u8>(byte1);
+    reader.read<endian::u8>(byte2);
+    reader.read<endian::u8>(byte3);
+    reader.read<endian::u8>(byte4);
+    reader.read<endian::u8>(byte5);
+    reader.read<endian::u8>(byte6);
+    reader.read<endian::u8>(byte7);
+    reader.read<endian::u8>(byte8);
+    reader.read<endian::u8>(byte9);
 
     EXPECT_EQ(0U, byte0);
     EXPECT_EQ(1U, byte1);
@@ -66,13 +66,13 @@ TEST(test_stream_reader, read_bytes)
     uint8_t byte11 = initial_value;
     uint8_t byte12 = initial_value;
     uint8_t byte13 = initial_value;
-    reader.read(byte10);
+    reader.read<endian::u8>(byte10);
     EXPECT_TRUE(bool(reader.error()));
-    reader.read(byte11);
+    reader.read<endian::u8>(byte11);
     EXPECT_TRUE(bool(reader.error()));
-    reader.read(byte12);
+    reader.read<endian::u8>(byte12);
     EXPECT_TRUE(bool(reader.error()));
-    reader.read(byte13);
+    reader.read<endian::u8>(byte13);
     EXPECT_TRUE(bool(reader.error()));
 
     EXPECT_EQ(initial_value, byte10);
@@ -98,16 +98,16 @@ TEST(test_stream_reader, skip)
     uint8_t byte9 = 0;
 
     auto skipped = reader.skip(5);
-    skipped.read(byte0);
-    skipped.read(byte1);
-    skipped.read(byte2);
-    skipped.read(byte3);
-    skipped.read(byte4);
-    reader.read(byte5);
-    reader.read(byte6);
-    reader.read(byte7);
-    reader.read(byte8);
-    reader.read(byte9);
+    skipped.read<endian::u8>(byte0);
+    skipped.read<endian::u8>(byte1);
+    skipped.read<endian::u8>(byte2);
+    skipped.read<endian::u8>(byte3);
+    skipped.read<endian::u8>(byte4);
+    reader.read<endian::u8>(byte5);
+    reader.read<endian::u8>(byte6);
+    reader.read<endian::u8>(byte7);
+    reader.read<endian::u8>(byte8);
+    reader.read<endian::u8>(byte9);
 
     EXPECT_EQ(0U, byte0);
     EXPECT_EQ(1U, byte1);
@@ -139,11 +139,11 @@ TEST(test_stream_reader, seek)
 
     reader.seek(10);
     reader.seek(5);
-    reader.read(byte5);
-    reader.read(byte6);
-    reader.read(byte7);
-    reader.read(byte8);
-    reader.read(byte9);
+    reader.read<endian::u8>(byte5);
+    reader.read<endian::u8>(byte6);
+    reader.read<endian::u8>(byte7);
+    reader.read<endian::u8>(byte8);
+    reader.read<endian::u8>(byte9);
 
     EXPECT_EQ(5U, byte5);
     EXPECT_EQ(6U, byte6);
@@ -158,20 +158,20 @@ TEST(test_stream_reader, seek)
 
 TEST(test_stream_reader, read_bits)
 {
-    std::vector<uint8_t> buffer = { 0b10000100 };
+    std::vector<uint8_t> buffer = { 0b10010010 };
     bnb::stream_reader<endian::big_endian> reader(buffer.data(), buffer.size());
 
     bool first_field = false;
     uint8_t second_field = 0;
-    bool third_field = true;
+    uint8_t third_field = 0;
 
-    reader.read_bits<uint8_t, bitter::msb0, 1, 6, 1>()
+    reader.read_bits<endian::u8, bitter::msb0, 1, 5, 2>()
         .read<0>(first_field)
-        .read<1>(second_field).expect_eq(2)
+        .read<1>(second_field).expect_eq(4)
         .read<2>(third_field);
 
     EXPECT_TRUE(!reader.error());
     EXPECT_EQ(true, first_field);
-    EXPECT_EQ(2U, second_field);
-    EXPECT_EQ(false, third_field);
+    EXPECT_EQ(4U, second_field);
+    EXPECT_EQ(2U, third_field);
 }

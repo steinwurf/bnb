@@ -15,16 +15,17 @@
 
 namespace bnb
 {
-template<class DataType, class BitNumbering, uint32_t... Sizes>
+template<class Type, class BitNumbering, uint32_t... Sizes>
 class bit_reader
 {
 public:
 
-    using reader_type = bitter::reader<DataType, BitNumbering, Sizes...>;
+    using value_type = typename Type::type;
+    using reader_type = bitter::reader<Type, BitNumbering, Sizes...>;
 
 public:
 
-    bit_reader(DataType value, std::error_code& error) :
+    bit_reader(value_type value, std::error_code& error) :
         m_reader(value),
         m_error(error)
     { }

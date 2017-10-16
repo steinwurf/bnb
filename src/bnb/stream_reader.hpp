@@ -29,18 +29,18 @@ public:
     /// Reads from the stream and moves the read position.
     ///
     /// @param value reference to the value to be read
-    template<class ValueType>
-    validator<ValueType> read(ValueType& value)
+    template<class Type>
+    validator<typename Type::type> read(typename Type::type& value)
     {
         if (m_error)
             return { m_error, value };
 
-        if (sizeof(ValueType) > m_stream.remaining_size())
+        if (Type::size > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
             return { m_error, value };
         }
-        m_stream.read(value);
+        m_stream.template read<Type>(value);
         return { m_error, value };
     }
 
@@ -67,26 +67,25 @@ public:
         return;
     }
 
-    template<class ValueType, class BitNumbering, uint32_t... Sizes>
-    bit_reader<ValueType, BitNumbering, Sizes...> read_bits()
+    template<class Type, class BitNumbering, uint32_t... Sizes>
+    bit_reader<Type, BitNumbering, Sizes...> read_bits()
     {
-        ValueType value = 0;
+        using value_type = typename Type::type;
+        value_type value = 0;
 
         if (m_error)
         {
-            return bit_reader<ValueType, BitNumbering, Sizes...>(
-                value, m_error);
+            return bit_reader<Type, BitNumbering, Sizes...>(value, m_error);
         }
 
-        if (sizeof(ValueType) > m_stream.remaining_size())
+        if (Type::size > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
-            return bit_reader<ValueType, BitNumbering, Sizes...>(
-                value, m_error);
+            return bit_reader<Type, BitNumbering, Sizes...>(value, m_error);
         }
 
-        m_stream.read(value);
-        return bit_reader<ValueType, BitNumbering, Sizes...>(value, m_error);
+        m_stream.template read<Type>(value);
+        return bit_reader<Type, BitNumbering, Sizes...>(value, m_error);
     }
 
     /// Changes the current read/write position in the stream. The
