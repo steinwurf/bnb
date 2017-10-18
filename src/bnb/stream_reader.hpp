@@ -22,8 +22,9 @@ class stream_reader
 {
 public:
 
-    stream_reader(const uint8_t* data, uint64_t size) :
-        m_stream(data, size)
+    stream_reader(const uint8_t* data, uint64_t size, std::error_code& error) :
+        m_stream(data, size),
+        m_error(error)
     { }
 
     /// Reads from the stream and moves the read position.
@@ -112,6 +113,7 @@ public:
     /// @param bytes_to_skip the bytes to skip
     stream_reader<Endianness> skip(uint64_t bytes_to_skip)
     {
+        assert(bytes_to_skip != 0);
         if (m_error)
             return *this;
 
@@ -123,7 +125,7 @@ public:
 
         auto remaining_data = m_stream.remaining_data();
         m_stream.skip(bytes_to_skip);
-        return stream_reader<Endianness>(remaining_data, bytes_to_skip);
+        return stream_reader<Endianness>(remaining_data, bytes_to_skip, m_error);
     }
 
     /// A pointer to the stream's data at the current position.
@@ -180,6 +182,6 @@ public:
 private:
 
     endian::stream_reader<Endianness> m_stream;
-    std::error_code m_error;
+    std::error_code& m_error;
 };
 }

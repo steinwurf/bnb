@@ -10,9 +10,11 @@
 TEST(test_stream_reader, init)
 {
     std::vector<uint8_t> buffer(10);
-    bnb::stream_reader<endian::big_endian> reader(buffer.data(), buffer.size());
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
 
-    ASSERT_FALSE((bool)reader.error());
+    ASSERT_FALSE((bool)error);
     EXPECT_EQ(buffer.data(), reader.data());
     EXPECT_EQ(buffer.size(), reader.size());
 
@@ -25,7 +27,9 @@ TEST(test_stream_reader, init)
 TEST(test_stream_reader, read_bytes)
 {
     std::vector<uint8_t> buffer {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    bnb::stream_reader<endian::big_endian> reader(buffer.data(), buffer.size());
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
 
     uint8_t byte0 = 0;
     uint8_t byte1 = 0;
@@ -67,13 +71,13 @@ TEST(test_stream_reader, read_bytes)
     uint8_t byte12 = initial_value;
     uint8_t byte13 = initial_value;
     reader.read<endian::u8>(byte10);
-    EXPECT_TRUE(bool(reader.error()));
+    EXPECT_TRUE(bool(error));
     reader.read<endian::u8>(byte11);
-    EXPECT_TRUE(bool(reader.error()));
+    EXPECT_TRUE(bool(error));
     reader.read<endian::u8>(byte12);
-    EXPECT_TRUE(bool(reader.error()));
+    EXPECT_TRUE(bool(error));
     reader.read<endian::u8>(byte13);
-    EXPECT_TRUE(bool(reader.error()));
+    EXPECT_TRUE(bool(error));
 
     EXPECT_EQ(initial_value, byte10);
     EXPECT_EQ(initial_value, byte11);
@@ -84,7 +88,9 @@ TEST(test_stream_reader, read_bytes)
 TEST(test_stream_reader, skip)
 {
     std::vector<uint8_t> buffer = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    bnb::stream_reader<endian::big_endian> reader(buffer.data(), buffer.size());
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
 
     uint8_t byte0 = 0;
     uint8_t byte1 = 0;
@@ -122,6 +128,7 @@ TEST(test_stream_reader, skip)
 
     auto reader_with_error = reader.skip(1);
 
+    EXPECT_TRUE((bool)error);
     EXPECT_TRUE((bool)reader.error());
     EXPECT_TRUE((bool)reader_with_error.error());
 }
@@ -129,7 +136,9 @@ TEST(test_stream_reader, skip)
 TEST(test_stream_reader, seek)
 {
     std::vector<uint8_t> buffer = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    bnb::stream_reader<endian::big_endian> reader(buffer.data(), buffer.size());
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
 
     uint8_t byte5 = 0;
     uint8_t byte6 = 0;
@@ -153,13 +162,15 @@ TEST(test_stream_reader, seek)
 
     reader.seek(11);
 
-    EXPECT_TRUE((bool)reader.error());
+    EXPECT_TRUE((bool)error);
 }
 
 TEST(test_stream_reader, read_bits)
 {
     std::vector<uint8_t> buffer = { 0b10010010 };
-    bnb::stream_reader<endian::big_endian> reader(buffer.data(), buffer.size());
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
 
     bool first_field = false;
     uint8_t second_field = 0;
@@ -170,6 +181,7 @@ TEST(test_stream_reader, read_bits)
         .read<1>(second_field).expect_eq(4)
         .read<2>(third_field);
 
+    EXPECT_TRUE(!error);
     EXPECT_TRUE(!reader.error());
     EXPECT_EQ(true, first_field);
     EXPECT_EQ(4U, second_field);
