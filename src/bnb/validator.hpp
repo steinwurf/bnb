@@ -25,8 +25,8 @@ template<class ValueType>
 class validator : public validator_wrapper<detail::empty, ValueType>
 {
 public:
-    validator(std::error_code& error, ValueType value) :
-        validator_wrapper<detail::empty, ValueType>(*this, error, value)
+    validator(ValueType value, std::error_code& error) :
+        validator_wrapper<detail::empty, ValueType>(*this, value, error)
     { }
 };
 }

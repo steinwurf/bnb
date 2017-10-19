@@ -22,6 +22,11 @@ class stream_reader
 {
 public:
 
+    /// Constructs a stream reader over a pre-allocated buffer.
+    ///
+    /// @param data The pointer to the data.
+    /// @param size The size of the allocated data
+    /// @param error A reference to the error code to set if an error happened
     stream_reader(const uint8_t* data, uint64_t size, std::error_code& error) :
         m_stream(data, size),
         m_error(error)
@@ -29,20 +34,28 @@ public:
 
     /// Reads from the stream and moves the read position.
     ///
-    /// @param value reference to the value to be read
+    /// @param value reference to the value to be read.
     template<class Type>
     validator<typename Type::type> read(typename Type::type& value)
     {
         if (m_error)
-            return { m_error, value };
+            return { value, m_error };
 
         if (Type::size > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
-            return { m_error, value };
+            return { value, m_error };
         }
         m_stream.template read<Type>(value);
-        return { m_error, value };
+        return { value, m_error };
+    }
+
+    /// Reads from the stream and moves the read position.
+    template<class Type>
+    validator<typename Type::type> read()
+    {
+        typename Type::type value;
+        return read<Type>(value);
     }
 
     /// Reads raw bytes from the stream to fill a buffer represented by
@@ -68,6 +81,9 @@ public:
         return;
     }
 
+    /// Returns a Bit Reader covering a given number of bytes and
+    /// moves the read position.
+    /// @return A bit reader covering the number of bytes in the Type template.
     template<class Type, class BitNumbering, uint32_t... Sizes>
     bit_reader<Type, BitNumbering, Sizes...> read_bits()
     {
@@ -113,7 +129,6 @@ public:
     /// @param bytes_to_skip the bytes to skip
     stream_reader<Endianness> skip(uint64_t bytes_to_skip)
     {
-        assert(bytes_to_skip != 0);
         if (m_error)
             return *this;
 
@@ -125,7 +140,8 @@ public:
 
         auto remaining_data = m_stream.remaining_data();
         m_stream.skip(bytes_to_skip);
-        return stream_reader<Endianness>(remaining_data, bytes_to_skip, m_error);
+        return stream_reader<Endianness>(
+            remaining_data, bytes_to_skip, m_error);
     }
 
     /// A pointer to the stream's data at the current position.
@@ -174,6 +190,8 @@ public:
         return m_stream.size();
     }
 
+    /// Returns the error code
+    /// @return the error code
     std::error_code error() const
     {
         return m_error;
