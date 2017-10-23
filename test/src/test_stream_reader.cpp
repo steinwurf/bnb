@@ -200,7 +200,7 @@ TEST(test_stream_reader, read_bits)
     uint8_t some_field = 42;
 
     // check that if we read too much data we will get an error
-    reader.read_bits<endian::u8, bitter::msb0, 8>(); // force error
+    reader.read_bits<endian::u8, bitter::msb0, 8>() // force error
     .read<0>(some_field);
     EXPECT_TRUE((bool) error);
     EXPECT_EQ(42U, some_field);
