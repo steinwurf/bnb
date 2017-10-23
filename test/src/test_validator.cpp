@@ -37,6 +37,11 @@ TEST(test_validator, expect_eq)
 
     validator.expect_eq(43);
     ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect_eq(42);
+    ASSERT_FALSE(!error);
 }
 
 TEST(test_validator, expect_ne)
@@ -48,6 +53,11 @@ TEST(test_validator, expect_ne)
 
     validator.expect_ne(42);
     ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect_ne(43);
+    ASSERT_FALSE(!error);
 }
 
 TEST(test_validator, expect_lt)
@@ -58,6 +68,11 @@ TEST(test_validator, expect_lt)
     ASSERT_TRUE(!error);
 
     validator.expect_lt(42);
+    ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect_lt(43);
     ASSERT_FALSE(!error);
 }
 
@@ -72,6 +87,11 @@ TEST(test_validator, expect_le)
 
     validator.expect_le(41);
     ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect_le(43);
+    ASSERT_FALSE(!error);
 }
 
 TEST(test_validator, expect_gt)
@@ -82,6 +102,11 @@ TEST(test_validator, expect_gt)
     ASSERT_TRUE(!error);
 
     validator.expect_gt(42);
+    ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect_gt(41);
     ASSERT_FALSE(!error);
 }
 
@@ -95,6 +120,11 @@ TEST(test_validator, expect_ge)
     ASSERT_TRUE(!error);
 
     validator.expect_ge(43);
+    ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect_ge(41);
     ASSERT_FALSE(!error);
 }
 
@@ -113,6 +143,15 @@ TEST(test_validator, expect)
     {
         EXPECT_EQ(42U, value);
         return false;
+    });
+    ASSERT_FALSE(!error);
+
+    // make sure we don't crash after a failed validation has happed and the
+    // error i still there
+    validator.expect([](uint32_t value)
+    {
+        EXPECT_EQ(42U, value);
+        return true;
     });
     ASSERT_FALSE(!error);
 }

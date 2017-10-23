@@ -28,3 +28,4 @@ TEST(test_validator_wrapper, init)
     validator.expect_eq(42);
     EXPECT_TRUE(!error);
 }
+
