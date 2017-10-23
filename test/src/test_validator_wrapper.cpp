@@ -20,7 +20,7 @@ TEST(test_validator_wrapper, init)
     std::error_code error;
     uint32_t value = 42;
     dummy my_dummy;
-    bnb::validator_wrapper<dummy, uint32_t> validator(my_dummy, value , error);
+    bnb::validator_wrapper<dummy, uint32_t> validator(my_dummy, value, error);
 
     EXPECT_EQ(5U, validator.test(5));
     validator.expect_eq(42);

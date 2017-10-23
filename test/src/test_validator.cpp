@@ -102,13 +102,15 @@ TEST(test_validator, expect)
 {
     std::error_code error;
     auto validator = bnb::validator<uint32_t>(42, error);
-    validator.expect([](uint32_t value) {
+    validator.expect([](uint32_t value)
+    {
         EXPECT_EQ(42U, value);
         return true;
     });
     ASSERT_TRUE(!error);
 
-    validator.expect([](uint32_t value) {
+    validator.expect([](uint32_t value)
+    {
         EXPECT_EQ(42U, value);
         return false;
     });

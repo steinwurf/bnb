@@ -177,9 +177,9 @@ TEST(test_stream_reader, read_bits)
     uint8_t third_field = 0;
 
     reader.read_bits<endian::u8, bitter::msb0, 1, 5, 2>()
-        .read<0>(first_field)
-        .read<1>(second_field).expect_eq(4)
-        .read<2>(third_field);
+    .read<0>(first_field)
+    .read<1>(second_field).expect_eq(4)
+    .read<2>(third_field);
 
     EXPECT_TRUE(!error);
     EXPECT_TRUE(!reader.error());
