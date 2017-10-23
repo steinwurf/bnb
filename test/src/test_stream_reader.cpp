@@ -131,6 +131,11 @@ TEST(test_stream_reader, skip)
     EXPECT_TRUE((bool)error);
     EXPECT_TRUE((bool)reader.error());
     EXPECT_TRUE((bool)reader_with_error.error());
+
+    // make sure we can still skip without crashing
+    auto another_reader_with_error = reader_with_error.skip(1);
+    EXPECT_TRUE((bool)error);
+    EXPECT_TRUE((bool)another_reader_with_error.error());
 }
 
 TEST(test_stream_reader, seek)
@@ -163,6 +168,11 @@ TEST(test_stream_reader, seek)
     reader.seek(11);
 
     EXPECT_TRUE((bool)error);
+
+    // Make sure we stay in error state even though we read back to a
+    // valid point
+    reader.seek(1);
+    EXPECT_TRUE((bool)error);
 }
 
 TEST(test_stream_reader, read_bits)
@@ -186,4 +196,15 @@ TEST(test_stream_reader, read_bits)
     EXPECT_EQ(true, first_field);
     EXPECT_EQ(4U, second_field);
     EXPECT_EQ(2U, third_field);
+
+    reader.skip(100); // force error
+    EXPECT_TRUE((bool) error);
+
+    // Check that we can read bits without crashing but not without error
+    uint8_t some_field = 42;
+    reader.read_bits<endian::u8, bitter::msb0, 8>()
+    .read<0>(some_field);
+
+    EXPECT_TRUE((bool) error);
+    EXPECT_EQ(42U, some_field);
 }

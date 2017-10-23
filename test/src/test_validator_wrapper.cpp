@@ -5,6 +5,7 @@
 
 #include <bnb/validator_wrapper.hpp>
 #include <gtest/gtest.h>
+
 namespace
 {
 struct dummy
@@ -15,6 +16,7 @@ struct dummy
     }
 };
 }
+
 TEST(test_validator_wrapper, init)
 {
     std::error_code error;
