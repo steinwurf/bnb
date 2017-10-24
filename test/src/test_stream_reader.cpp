@@ -183,31 +183,29 @@ TEST(test_stream_reader, read_bits)
         buffer.data(), buffer.size(), error);
 
     bool first_field = false;
-    uint8_t second_field = 0;
     uint8_t third_field = 0;
 
     reader.read_bits<endian::u8, bitter::msb0, 1, 5, 2>()
-    .read<0>(first_field)
-    .read<1>(second_field).expect_eq(4)
-    .read<2>(third_field);
+    .get<0>(first_field)
+    .get<1>().expect_eq(4)
+    .get<2>(third_field);
 
     EXPECT_TRUE(!error);
     EXPECT_TRUE(!reader.error());
     EXPECT_EQ(true, first_field);
-    EXPECT_EQ(4U, second_field);
     EXPECT_EQ(2U, third_field);
 
     uint8_t some_field = 42;
 
     // check that if we read too much data we will get an error
     reader.read_bits<endian::u8, bitter::msb0, 8>() // force error
-    .read<0>(some_field);
+    .get<0>(some_field);
     EXPECT_TRUE((bool) error);
     EXPECT_EQ(42U, some_field);
 
     // Check that we can still read bits without crashing
     reader.read_bits<endian::u8, bitter::msb0, 8>()
-    .read<0>(some_field);
+    .get<0>(some_field);
 
     EXPECT_TRUE((bool) error);
     EXPECT_EQ(42U, some_field);
