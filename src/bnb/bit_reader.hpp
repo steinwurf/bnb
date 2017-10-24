@@ -45,11 +45,11 @@ public:
     ///         This allows for the next values to be read and for the current
     ///         value to be validated if needed.
     template<uint32_t Index, class ValueType>
-    validator_wrapper<bit_reader, ValueType> read(ValueType& value)
+    validator_wrapper<bit_reader, ValueType> get(ValueType& value)
     {
         if (m_error)
             return { *this, value, m_error };
-        value = m_reader.template field<Index>().template read_as<ValueType>();
+        value = m_reader.template field<Index>().template as<ValueType>();
         return { *this, value, m_error };
     }
 
@@ -58,10 +58,10 @@ public:
     ///         This allows for the next values to be read and for the current
     ///         value to be validated if needed.
     template<uint32_t Index>
-    auto read()
+    auto get()
     {
         value_type value = 0;
-        return read<Index, value_type>(value);
+        return get<Index, value_type>(value);
     }
 
 private:

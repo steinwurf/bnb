@@ -58,6 +58,26 @@ public:
         return read<Type>(value);
     }
 
+    /// Peeks in the stream without moving the read position.
+    ///
+    /// @param value reference to the value to be read.
+    /// @param offset number of bytes to offset the peeking with
+    template<class Type>
+    validator<typename Type::type> peek(
+        typename Type::type& value, uint64_t offset=0) const
+    {
+        if (m_error)
+            return { value, m_error };
+
+        if (Type::size > m_stream.remaining_size())
+        {
+            m_error = std::make_error_code(std::errc::result_out_of_range);
+            return { value, m_error };
+        }
+        m_stream.template peek<Type>(value, offset);
+        return { value, m_error };
+    }
+
     /// Reads raw bytes from the stream to fill a buffer represented by
     /// a mutable storage object.
     ///
@@ -177,7 +197,6 @@ public:
     /// @return pointer to the stream's data.
     const uint8_t* data() const
     {
-        assert(!m_error);
         return m_stream.data();
     }
 
@@ -186,7 +205,6 @@ public:
     /// @return the size of the buffer
     uint64_t size() const
     {
-        assert(!m_error);
         return m_stream.size();
     }
 
