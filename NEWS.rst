@@ -6,6 +6,10 @@ every change, see the Git log.
 
 Latest
 ------
+* tbd
+
+2.0.0
+-----
 * Major: Renamed ``bit_reader.read`` to ``bit_reader.get``.
 * Major: Upgraded to bitter 4.
 * Minor: Added ``peek`` to ``stream_reader``.
