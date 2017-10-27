@@ -6,6 +6,10 @@ every change, see the Git log.
 
 Latest
 ------
+* tbd
+
+4.0.0
+-----
 * Major: Renamed ``read`` to ``read_bytes``.
 * Major: Renamed ``peek`` to ``peek_bytes``.
 * Major: Upgraded to endian 8.
