@@ -105,8 +105,13 @@ TEST(test_stream_reader, peek_bytes)
     EXPECT_EQ(2U, byte2);
     EXPECT_TRUE(!error);
 
+    // check error handling
+
     uint8_t byte3 = 0;
     reader.peek_bytes<1>(byte3, 3);
+    EXPECT_FALSE(!error);
+    uint8_t byte4 = 0;
+    reader.peek_bytes<1>(byte4, 4);
     EXPECT_FALSE(!error);
 }
 
