@@ -6,7 +6,10 @@ every change, see the Git log.
 
 Latest
 ------
-* tbd
+* Major: Renamed ``read`` to ``read_bytes``.
+* Major: Renamed ``peek`` to ``peek_bytes``.
+* Major: Upgraded to endian 8.
+* Major: Upgraded to bitter 4.
 
 3.0.0
 -----
