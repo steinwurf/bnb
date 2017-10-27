@@ -85,6 +85,31 @@ TEST(test_stream_reader, read_bytes)
     EXPECT_EQ(initial_value, byte13);
 }
 
+TEST(test_stream_reader, peek_bytes)
+{
+    std::vector<uint8_t> buffer {0, 1, 2};
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
+
+    uint8_t byte0 = 0;
+    uint8_t byte1 = 0;
+    uint8_t byte2 = 0;
+
+    reader.peek_bytes<1>(byte0, 0);
+    reader.peek_bytes<1>(byte1, 1);
+    reader.peek_bytes<1>(byte2, 2);
+
+    EXPECT_EQ(0U, byte0);
+    EXPECT_EQ(1U, byte1);
+    EXPECT_EQ(2U, byte2);
+    EXPECT_TRUE(!error);
+
+    uint8_t byte3 = 0;
+    reader.peek_bytes<1>(byte3, 3);
+    EXPECT_FALSE(!error);
+}
+
 TEST(test_stream_reader, skip)
 {
     std::vector<uint8_t> buffer = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

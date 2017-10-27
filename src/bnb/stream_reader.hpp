@@ -68,7 +68,7 @@ public:
         if (m_error)
             return { value, m_error };
 
-        if (Bytes > m_stream.remaining_size())
+        if (Bytes > m_stream.remaining_size() - offset)
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
             return { value, m_error };
