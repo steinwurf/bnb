@@ -35,47 +35,55 @@ public:
     /// Reads from the stream and moves the read position.
     ///
     /// @param value reference to the value to be read.
-    template<class Type>
-    validator<typename Type::type> read(typename Type::type& value)
+    template<uint8_t Bytes, class ValueType>
+    validator<ValueType> read(ValueType& value)
     {
         if (m_error)
             return { value, m_error };
 
-        if (Type::size > m_stream.remaining_size())
+        if (Bytes > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
             return { value, m_error };
         }
-        m_stream.template read<Type>(value);
+        m_stream.template read_bytes<Bytes, ValueType>(value);
         return { value, m_error };
     }
 
     /// Reads from the stream and moves the read position.
-    template<class Type>
-    validator<typename Type::type> read()
+    template<uint8_t Bytes>
+    validator<uint64_t> read()
     {
-        typename Type::type value;
-        return read<Type>(value);
+        uint64_t value;
+        return read<Bytes, uint64_t>(value);
     }
 
     /// Peeks in the stream without moving the read position.
     ///
     /// @param value reference to the value to be read.
     /// @param offset number of bytes to offset the peeking with
-    template<class Type>
-    validator<typename Type::type> peek(
-        typename Type::type& value, uint64_t offset=0) const
+    template<uint8_t Bytes, class ValueType>
+    validator<ValueType> peek(ValueType& value, uint64_t offset=0) const
     {
         if (m_error)
             return { value, m_error };
 
-        if (Type::size > m_stream.remaining_size())
+        if (Bytes > m_stream.remaining_size())
         {
             m_error = std::make_error_code(std::errc::result_out_of_range);
             return { value, m_error };
         }
-        m_stream.template peek<Type>(value, offset);
+        m_stream.template peek_bytes<Bytes, ValueType>(value, offset);
         return { value, m_error };
+    }
+
+    /// Peeks in the stream without moving the read position.
+    /// @param offset number of bytes to offset the peeking with
+    template<uint8_t Bytes>
+    validator<uint64_t> peek(uint64_t offset=0) const
+    {
+        uint64_t value = 0;
+        return peek<Bytes, uint64_t>(value, offset);
     }
 
     /// Reads raw bytes from the stream to fill a buffer represented by
@@ -121,7 +129,7 @@ public:
             return bit_reader<Type, BitNumbering, Sizes...>(value, m_error);
         }
 
-        m_stream.template read<Type>(value);
+        m_stream.template read_bytes<Type::size, value_type>(value);
         return bit_reader<Type, BitNumbering, Sizes...>(value, m_error);
     }
 

@@ -5,15 +5,13 @@
 
 #include <bnb/bit_reader.hpp>
 
-#include <endian/types.hpp>
-
 #include <gtest/gtest.h>
 
 TEST(test_bit_reader, api)
 {
     std::error_code error;
-    endian::u24::type v = 0x00FFFFFF;
-    bnb::bit_reader<endian::u24, bitter::msb0, 1, 2, 3, 9, 9> reader(v, error);
+    bitter::u24::type v = 0x00FFFFFF;
+    bnb::bit_reader<bitter::u24, bitter::msb0, 1, 2, 3, 9, 9> reader(v, error);
 
     uint8_t field1 = 0;
     uint8_t field2 = 0;
@@ -40,8 +38,8 @@ TEST(test_bit_reader, api)
 TEST(test_bit_reader, force_error)
 {
     std::error_code error;
-    endian::u24::type v = 0x00FFFFFF;
-    bnb::bit_reader<endian::u24, bitter::msb0, 1, 2, 3, 9, 9> reader(v, error);
+    bitter::u24::type v = 0x00FFFFFF;
+    bnb::bit_reader<bitter::u24, bitter::msb0, 1, 2, 3, 9, 9> reader(v, error);
 
     bool field0 = false;
     uint8_t field1 = 0;
