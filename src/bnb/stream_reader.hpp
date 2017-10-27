@@ -36,7 +36,7 @@ public:
     ///
     /// @param value reference to the value to be read.
     template<uint8_t Bytes, class ValueType>
-    validator<ValueType> read(ValueType& value)
+    validator<ValueType> read_bytes(ValueType& value)
     {
         if (m_error)
             return { value, m_error };
@@ -52,10 +52,10 @@ public:
 
     /// Reads from the stream and moves the read position.
     template<uint8_t Bytes>
-    validator<uint64_t> read()
+    validator<uint64_t> read_bytes()
     {
         uint64_t value;
-        return read<Bytes, uint64_t>(value);
+        return read_bytes<Bytes, uint64_t>(value);
     }
 
     /// Peeks in the stream without moving the read position.
@@ -63,7 +63,7 @@ public:
     /// @param value reference to the value to be read.
     /// @param offset number of bytes to offset the peeking with
     template<uint8_t Bytes, class ValueType>
-    validator<ValueType> peek(ValueType& value, uint64_t offset=0) const
+    validator<ValueType> peek_bytes(ValueType& value, uint64_t offset=0) const
     {
         if (m_error)
             return { value, m_error };
@@ -80,10 +80,10 @@ public:
     /// Peeks in the stream without moving the read position.
     /// @param offset number of bytes to offset the peeking with
     template<uint8_t Bytes>
-    validator<uint64_t> peek(uint64_t offset=0) const
+    validator<uint64_t> peek_bytes(uint64_t offset=0) const
     {
         uint64_t value = 0;
-        return peek<Bytes, uint64_t>(value, offset);
+        return peek_bytes<Bytes, uint64_t>(value, offset);
     }
 
     /// Reads raw bytes from the stream to fill a buffer represented by

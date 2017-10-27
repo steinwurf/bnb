@@ -42,16 +42,16 @@ TEST(test_stream_reader, read_bytes)
     uint8_t byte8 = 0;
     uint8_t byte9 = 0;
 
-    reader.read<1>(byte0);
-    reader.read<1>(byte1);
-    reader.read<1>(byte2);
-    reader.read<1>(byte3);
-    reader.read<1>(byte4);
-    reader.read<1>(byte5);
-    reader.read<1>(byte6);
-    reader.read<1>(byte7);
-    reader.read<1>(byte8);
-    reader.read<1>(byte9);
+    reader.read_bytes<1>(byte0);
+    reader.read_bytes<1>(byte1);
+    reader.read_bytes<1>(byte2);
+    reader.read_bytes<1>(byte3);
+    reader.read_bytes<1>(byte4);
+    reader.read_bytes<1>(byte5);
+    reader.read_bytes<1>(byte6);
+    reader.read_bytes<1>(byte7);
+    reader.read_bytes<1>(byte8);
+    reader.read_bytes<1>(byte9);
 
     EXPECT_EQ(0U, byte0);
     EXPECT_EQ(1U, byte1);
@@ -70,13 +70,13 @@ TEST(test_stream_reader, read_bytes)
     uint8_t byte11 = initial_value;
     uint8_t byte12 = initial_value;
     uint8_t byte13 = initial_value;
-    reader.read<1>(byte10);
+    reader.read_bytes<1>(byte10);
     EXPECT_TRUE(bool(error));
-    reader.read<1>(byte11);
+    reader.read_bytes<1>(byte11);
     EXPECT_TRUE(bool(error));
-    reader.read<1>(byte12);
+    reader.read_bytes<1>(byte12);
     EXPECT_TRUE(bool(error));
-    reader.read<1>(byte13);
+    reader.read_bytes<1>(byte13);
     EXPECT_TRUE(bool(error));
 
     EXPECT_EQ(initial_value, byte10);
@@ -104,16 +104,16 @@ TEST(test_stream_reader, skip)
     uint8_t byte9 = 0;
 
     auto skipped = reader.skip(5);
-    skipped.read<1>(byte0);
-    skipped.read<1>(byte1);
-    skipped.read<1>(byte2);
-    skipped.read<1>(byte3);
-    skipped.read<1>(byte4);
-    reader.read<1>(byte5);
-    reader.read<1>(byte6);
-    reader.read<1>(byte7);
-    reader.read<1>(byte8);
-    reader.read<1>(byte9);
+    skipped.read_bytes<1>(byte0);
+    skipped.read_bytes<1>(byte1);
+    skipped.read_bytes<1>(byte2);
+    skipped.read_bytes<1>(byte3);
+    skipped.read_bytes<1>(byte4);
+    reader.read_bytes<1>(byte5);
+    reader.read_bytes<1>(byte6);
+    reader.read_bytes<1>(byte7);
+    reader.read_bytes<1>(byte8);
+    reader.read_bytes<1>(byte9);
 
     EXPECT_EQ(0U, byte0);
     EXPECT_EQ(1U, byte1);
@@ -158,14 +158,14 @@ TEST(test_stream_reader, seek)
 
     reader.seek(10);
     reader.seek(5);
-    reader.read<1>(byte5);
-    reader.read<1>(byte6);
-    reader.read<1>(byte7);
-    reader.read<1>(byte8);
-    reader.read<1>(byte9);
-    reader.peek<8>().expect_eq(-72057594037927934);
-    reader.peek<8>().expect_eq(18374686479671623682U);
-    reader.read<8>(byte10).expect_eq(-72057594037927934);
+    reader.read_bytes<1>(byte5);
+    reader.read_bytes<1>(byte6);
+    reader.read_bytes<1>(byte7);
+    reader.read_bytes<1>(byte8);
+    reader.read_bytes<1>(byte9);
+    reader.peek_bytes<8>().expect_eq(-72057594037927934);
+    reader.peek_bytes<8>().expect_eq(18374686479671623682U);
+    reader.read_bytes<8>(byte10).expect_eq(-72057594037927934);
 
     EXPECT_EQ(5U, byte5);
     EXPECT_EQ(6U, byte6);
