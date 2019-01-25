@@ -168,6 +168,16 @@ TEST(test_stream_reader, skip)
     EXPECT_TRUE((bool)another_reader_with_error.error());
 }
 
+TEST(test_stream_reader, skip_0)
+{
+    std::vector<uint8_t> buffer = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    std::error_code error;
+    bnb::stream_reader<endian::big_endian> reader(
+        buffer.data(), buffer.size(), error);
+    auto fork = reader.skip(0);
+    EXPECT_EQ(0U, fork.size());
+}
+
 TEST(test_stream_reader, seek)
 {
     std::vector<uint8_t> buffer =
