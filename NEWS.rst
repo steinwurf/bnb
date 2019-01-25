@@ -7,6 +7,9 @@ every change, see the Git log.
 Latest
 ------
 * tbd
+
+6.0.0
+-----
 * Major: Upgraded to bitter 5.
 * Major: Upgraded to endian 10.
 
