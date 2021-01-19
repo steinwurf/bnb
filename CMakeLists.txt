@@ -9,6 +9,8 @@ if(NOT DEFINED STEINWURF_RESOLVE)
     set(STEINWURF_RESOLVE "${CMAKE_CURRENT_SOURCE_DIR}/resolve_symlinks")
 endif()
 
+file(GLOB bnb_headers ./src/bnb/*.hpp)
+
 add_library(bnb INTERFACE)
 add_library(steinwurf::bnb ALIAS bnb)
 
@@ -27,3 +29,5 @@ target_link_libraries(bnb
 target_include_directories(bnb INTERFACE src)
 
 target_compile_features(bnb INTERFACE cxx_std_11)
+
+install(FILES ${bnb_headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/bnb)
